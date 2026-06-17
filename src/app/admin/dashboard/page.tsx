@@ -8,6 +8,7 @@ import DashboardSummary from "../../../components/dashboard/DashboardSummary";
 
 const sidebarItems = [
   { label: "Dashboard", href: "/admin/dashboard" },
+  { label: "Teachers Management", href: "/admin/teachers" },
   { label: "Students Management", href: "/admin/dashboard#students" },
   { label: "Class Management", href: "/admin/dashboard#classes" },
   { label: "Accounts Management", href: "/admin/dashboard#accounts" },
