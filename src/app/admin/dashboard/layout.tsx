@@ -15,6 +15,7 @@ const sidebarItems = [
   { label: "Subjects Management", href: "/admin/dashboard/subjects" },
   { label: "Lecture Slots Management", href: "/admin/dashboard/lecture-slots" },
   { label: "Live Classes Management", href: "/admin/dashboard/live-classes" },
+  { label: "Rooms Management", href: "/admin/dashboard/rooms" },
   { label: "Timetables Management", href: "/admin/dashboard/timetables" },
   { label: "Accounts Management", href: "/admin/dashboard#accounts" },
 ];

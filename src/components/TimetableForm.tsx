@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
-import FormInput from "./FormInput";
 import apiClient from "../utils/apiClient";
 
 type TimetableFormValues = {
-  classId?: number;
+  sectionId?: number;
   subjectId: number;
   teacherId: number;
   roomId?: number;
@@ -18,7 +17,6 @@ type TimetableFormProps = {
   status: "idle" | "loading" | "succeeded" | "failed";
   error?: string | null;
 };
-
 const DAYS_OF_WEEK = [
   { value: 1, label: "Monday" },
   { value: 2, label: "Tuesday" },
@@ -39,14 +37,19 @@ export default function TimetableForm({
   const [values, setValues] = useState(initialValues);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-  const [classes, setClasses] = useState<Array<{ id: number; name: string }>>(
-    [],
-  );
+  const [sections, setSections] = useState<
+    Array<{ id: number; name: string; className?: string }>
+  >([]);
   const [subjects, setSubjects] = useState<Array<{ id: number; name: string }>>(
     [],
   );
   const [teachers, setTeachers] = useState<
-    Array<{ id: number; firstName: string; lastName: string }>
+    Array<{
+      id: number;
+      profileId?: number;
+      firstName: string;
+      lastName: string;
+    }>
   >([]);
   const [rooms, setRooms] = useState<Array<{ id: number; roomName: string }>>(
     [],
@@ -60,25 +63,20 @@ export default function TimetableForm({
   useEffect(() => {
     const fetchDropdownData = async () => {
       try {
-        const [classesRes, subjectsRes, teachersRes, roomsRes, slotsRes] =
+        const [sectionsRes, subjectsRes, teachersRes, roomsRes, slotsRes] =
           await Promise.all([
-            apiClient.request("/classes", { method: "GET" }),
+            apiClient.request("/sections", { method: "GET" }),
             apiClient.request("/subjects", { method: "GET" }),
             apiClient.request("/teachers", { method: "GET" }),
-            { data: [] },
-            // apiClient.request("/rooms", { method: "GET" }),
+            apiClient.request("/rooms", { method: "GET" }),
             apiClient.request("/lecture-slots", { method: "GET" }),
           ]);
-        console.log("classesRes :>> ", classesRes);
-        console.log("subjectsRes :>> ", subjectsRes);
-        console.log("teachersRes :>> ", teachersRes);
-        console.log("roomsRes :>> ", roomsRes);
-        console.log("slotsRes :>> ", slotsRes);
-        const classData = classesRes.data?.classes ?? classesRes.data ?? [];
-        setClasses(Array.isArray(classData) ? classData : []);
+        const sectionData =
+          sectionsRes.data?.sections ?? sectionsRes.data ?? [];
+        setSections(Array.isArray(sectionData) ? sectionData : []);
         setSubjects(subjectsRes?.data?.subjects || []);
         setTeachers(teachersRes.data.teachers || []);
-        setRooms(roomsRes.data || []);
+        setRooms(roomsRes.data.rooms || []);
         setLectureSlots(slotsRes.data.lectureSlots || []);
       } catch (error) {
         console.error("Failed to fetch dropdown data:", error);
@@ -90,14 +88,17 @@ export default function TimetableForm({
     fetchDropdownData();
   }, []);
 
-  const handleChange = (field: keyof TimetableFormValues, value: any) => {
+  const handleChange = (
+    field: keyof TimetableFormValues,
+    value: number | undefined,
+  ) => {
     setValues((prev) => ({ ...prev, [field]: value }));
     setFieldErrors((prev) => ({ ...prev, [field as string]: "" }));
   };
 
   const validate = () => {
     const errors: Record<string, string> = {};
-    if (!values.classId) errors.classId = "Class is required.";
+    if (!values.sectionId) errors.sectionId = "Section is required.";
     if (!values.subjectId) errors.subjectId = "Subject is required.";
     if (!values.teacherId) errors.teacherId = "Teacher is required.";
     if (!values.lectureSlotId)
@@ -120,33 +121,34 @@ export default function TimetableForm({
     >
       <div>
         <label
-          htmlFor="classId"
+          htmlFor="sectionId"
           className="block text-sm font-medium text-slate-700"
         >
-          Class
+          Section
         </label>
         <select
-          id="classId"
-          name="classId"
-          value={values.classId || ""}
+          id="sectionId"
+          name="sectionId"
+          value={values.sectionId || ""}
           onChange={(e) =>
             handleChange(
-              "classId",
+              "sectionId",
               e.target.value ? Number(e.target.value) : undefined,
             )
           }
           disabled={loading}
           className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100"
         >
-          <option value="">{loading ? "Loading..." : "Select Class"}</option>
-          {classes.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.name}
+          <option value="">{loading ? "Loading..." : "Select Section"}</option>
+          {sections.map((section) => (
+            <option key={section.id} value={section.id}>
+              {section.name}
+              {section.className ? ` (${section.className})` : ""}
             </option>
           ))}
         </select>
-        {fieldErrors.classId && (
-          <p className="mt-1 text-sm text-rose-600">{fieldErrors.classId}</p>
+        {fieldErrors.sectionId && (
+          <p className="mt-1 text-sm text-rose-600">{fieldErrors.sectionId}</p>
         )}
       </div>
 
@@ -193,11 +195,13 @@ export default function TimetableForm({
           className="mt-1 block w-full rounded-lg border border-slate-300 px-3 py-2 text-slate-900 placeholder-slate-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500 disabled:bg-slate-100"
         >
           <option value="">{loading ? "Loading..." : "Select Teacher"}</option>
-          {teachers.map((teacher) => (
-            <option key={teacher.id} value={teacher.id}>
-              {teacher.firstName} {teacher.lastName}
-            </option>
-          ))}
+          {teachers
+            .filter((teacher) => teacher.profileId !== undefined)
+            .map((teacher) => (
+              <option key={teacher.profileId} value={teacher.profileId}>
+                {teacher.firstName} {teacher.lastName}
+              </option>
+            ))}
         </select>
         {fieldErrors.teacherId && (
           <p className="mt-1 text-sm text-rose-600">{fieldErrors.teacherId}</p>

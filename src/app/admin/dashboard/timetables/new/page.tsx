@@ -29,7 +29,7 @@ export default function NewTimetablePage() {
       </div>
       <TimetableForm
         initialValues={{
-          classId: 0,
+          sectionId: 0,
           subjectId: 0,
           teacherId: 0,
           roomId: undefined,

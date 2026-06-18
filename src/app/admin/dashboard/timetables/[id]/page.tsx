@@ -63,7 +63,7 @@ export default function EditTimetablePage() {
       {selectedTimetable ? (
         <TimetableForm
           initialValues={{
-            classId: selectedTimetable.classId ?? 0,
+            sectionId: selectedTimetable.sectionId ?? 0,
             subjectId: selectedTimetable.subjectId,
             teacherId: selectedTimetable.teacherId,
             roomId: selectedTimetable.roomId,

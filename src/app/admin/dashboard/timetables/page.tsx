@@ -22,6 +22,7 @@ const DAYS_OF_WEEK: Record<number, string> = {
 
 const columns = [
   { label: "Class", key: "className" },
+  { label: "Section", key: "sectionName" },
   { label: "Subject", key: "subjectName" },
   { label: "Teacher", key: "teacherName" },
   { label: "Lecture Slot", key: "lectureSlotTitle" },

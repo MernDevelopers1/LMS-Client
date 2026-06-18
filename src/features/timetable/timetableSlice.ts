@@ -3,7 +3,8 @@ import apiClient from "../../utils/apiClient";
 
 type Timetable = {
   id: number;
-  classId?: number;
+  sectionId?: number;
+  sectionName?: string;
   className?: string;
   subjectId: number;
   subjectName?: string;
@@ -63,10 +64,9 @@ export const fetchTimetables = createAsyncThunk(
         },
       );
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.message || "Unable to fetch timetables",
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return thunkAPI.rejectWithValue(message || "Unable to fetch timetables");
     }
   },
 );
@@ -79,10 +79,9 @@ export const fetchTimetableById = createAsyncThunk(
         method: "GET",
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.message || "Unable to fetch timetable",
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return thunkAPI.rejectWithValue(message || "Unable to fetch timetable");
     }
   },
 );
@@ -96,10 +95,9 @@ export const createTimetable = createAsyncThunk(
         body: JSON.stringify(payload),
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.message || "Unable to create timetable",
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return thunkAPI.rejectWithValue(message || "Unable to create timetable");
     }
   },
 );
@@ -113,10 +111,9 @@ export const updateTimetable = createAsyncThunk(
         body: JSON.stringify(payload),
       });
       return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.message || "Unable to update timetable",
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return thunkAPI.rejectWithValue(message || "Unable to update timetable");
     }
   },
 );
@@ -129,10 +126,9 @@ export const deleteTimetable = createAsyncThunk(
         method: "DELETE",
       });
       return id;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(
-        error.message || "Unable to delete timetable",
-      );
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : String(error);
+      return thunkAPI.rejectWithValue(message || "Unable to delete timetable");
     }
   },
 );

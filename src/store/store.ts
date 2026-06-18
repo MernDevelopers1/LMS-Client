@@ -8,6 +8,7 @@ import liveClassReducer from "../features/liveClass/liveClassSlice";
 import sectionReducer from "../features/section/sectionSlice";
 import subjectReducer from "../features/subject/subjectSlice";
 import lectureSlotReducer from "../features/lectureSlot/lectureSlotSlice";
+import roomReducer from "../features/room/roomSlice";
 
 const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ const store = configureStore({
     subject: subjectReducer,
     timetable: timetableReducer,
     liveClass: liveClassReducer,
+    room: roomReducer,
   },
 });
 
