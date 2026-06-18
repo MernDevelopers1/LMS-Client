@@ -8,7 +8,7 @@ import {
   deleteTimetable,
   setSelectedTimetable,
 } from "../../../../features/timetable/timetableSlice";
-import TableList from "../../../../components/TableList";
+import AdminListPage from "../../../../components/AdminListPage";
 
 const DAYS_OF_WEEK: Record<number, string> = {
   1: "Monday",
@@ -93,51 +93,32 @@ export default function TimetableListPage() {
   }));
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Timetable Management
-          </h1>
-          <p className="text-sm text-slate-500">
-            Create, edit, and manage timetable entries for classes.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/dashboard/timetables/new")}
-          className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Timetable Entry
-        </button>
-      </div>
-
-      {error ? (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      <TableList
-        columns={columns}
-        data={displayTimetables}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        totalItems={pagination.total}
-        searchText={searchQuery}
-        onSearchChange={handleSearch}
-        onPageChange={setCurrentPage}
-        onPageSizeChange={(size) => {
+    <AdminListPage
+      title="Timetable Management"
+      description="Create, edit, and manage timetable entries for classes."
+      actionLabel="Add Timetable Entry"
+      actionHref="/admin/dashboard/timetables/new"
+      error={error}
+      tableProps={{
+        columns,
+        data: displayTimetables,
+        currentPage,
+        pageSize,
+        totalItems: pagination.total,
+        searchText: searchQuery,
+        onSearchChange: handleSearch,
+        onPageChange: setCurrentPage,
+        onPageSizeChange: (size) => {
           setPageSize(size);
           setCurrentPage(1);
-        }}
-        onSortChange={handleSort}
-        sortKey={sortBy}
-        sortDirection={sortOrder}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        isLoading={status === "loading"}
-      />
-    </div>
+        },
+        onSortChange: handleSort,
+        sortKey: sortBy,
+        sortDirection: sortOrder,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        isLoading: status === "loading",
+      }}
+    />
   );
 }

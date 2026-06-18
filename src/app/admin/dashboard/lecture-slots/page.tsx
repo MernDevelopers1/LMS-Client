@@ -3,8 +3,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import TableList from "@/components/TableList";
+import AdminListPage from "@/components/AdminListPage";
 import {
   fetchLectureSlots,
   deleteLectureSlot,
@@ -82,55 +81,39 @@ const LectureSlotListPage = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Lecture Slots Management
-          </h1>
-          <p className="text-sm text-slate-500">
-            Manage the lecture slot schedule and timings.
-          </p>
-        </div>
-        <Link
-          href="/admin/dashboard/lecture-slots/new"
-          className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Lecture Slot
-        </Link>
-      </div>
-
-      {error ? (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      <TableList
-        columns={[
-          { label: "Title", key: "title" },
-          { label: "Start Time", key: "startTime" },
-          { label: "End Time", key: "endTime" },
-          { label: "Duration", key: "duration" },
-        ]}
-        data={displayLectureSlots}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        totalItems={pagination.total}
-        searchText={searchQuery}
-        onSearchChange={handleSearch}
-        onPageChange={setCurrentPage}
-        onPageSizeChange={(size) => {
-          setPageSize(size);
-          setCurrentPage(1);
+      <AdminListPage
+        title="Lecture Slots Management"
+        description="Manage the lecture slot schedule and timings."
+        actionLabel="Add Lecture Slot"
+        actionHref="/admin/dashboard/lecture-slots/new"
+        error={error}
+        tableProps={{
+          columns: [
+            { label: "Title", key: "title" },
+            { label: "Start Time", key: "startTime" },
+            { label: "End Time", key: "endTime" },
+            { label: "Duration", key: "duration" },
+          ],
+          data: displayLectureSlots,
+          currentPage,
+          pageSize,
+          totalItems: pagination.total,
+          searchText: searchQuery,
+          onSearchChange: handleSearch,
+          onPageChange: setCurrentPage,
+          onPageSizeChange: (size) => {
+            setPageSize(size);
+            setCurrentPage(1);
+          },
+          onSortChange: handleSort,
+          remoteSort: true,
+          sortKey: sortBy,
+          sortDirection: sortOrder,
+          onEdit: (item: any) =>
+            router.push(`/admin/dashboard/lecture-slots/${item.id}`),
+          onDelete: (item: any) => setShowDeleteConfirm(item.id),
+          isLoading: status === "loading",
         }}
-        onSortChange={handleSort}
-        remoteSort
-        sortKey={sortBy}
-        sortDirection={sortOrder}
-        onEdit={(item: any) =>
-          router.push(`/admin/dashboard/lecture-slots/${item.id}`)
-        }
-        onDelete={(item: any) => setShowDeleteConfirm(item.id)}
       />
 
       {showDeleteConfirm !== null && (

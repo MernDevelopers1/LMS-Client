@@ -8,7 +8,7 @@ import {
   deleteLiveClass,
   setSelectedLiveClass,
 } from "../../../../features/liveClass/liveClassSlice";
-import TableList from "../../../../components/TableList";
+import AdminListPage from "../../../../components/AdminListPage";
 
 const columns = [
   { label: "Class", key: "className" },
@@ -72,51 +72,32 @@ export default function LiveClassListPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Live Classes Management
-          </h1>
-          <p className="text-sm text-slate-500">
-            Create, edit, and manage live class sessions for your school.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/dashboard/live-classes/new")}
-          className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Live Class
-        </button>
-      </div>
-
-      {error ? (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      <TableList
-        columns={columns}
-        data={liveClasses}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        totalItems={pagination.total}
-        searchText={searchQuery}
-        onSearchChange={handleSearch}
-        onPageChange={setCurrentPage}
-        onPageSizeChange={(size) => {
+    <AdminListPage
+      title="Live Classes Management"
+      description="Create, edit, and manage live class sessions for your school."
+      actionLabel="Add Live Class"
+      actionHref="/admin/dashboard/live-classes/new"
+      error={error}
+      tableProps={{
+        columns,
+        data: liveClasses,
+        currentPage,
+        pageSize,
+        totalItems: pagination.total,
+        searchText: searchQuery,
+        onSearchChange: handleSearch,
+        onPageChange: setCurrentPage,
+        onPageSizeChange: (size) => {
           setPageSize(size);
           setCurrentPage(1);
-        }}
-        onSortChange={handleSort}
-        sortKey={sortBy}
-        sortDirection={sortOrder}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        isLoading={status === "loading"}
-      />
-    </div>
+        },
+        onSortChange: handleSort,
+        sortKey: sortBy,
+        sortDirection: sortOrder,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        isLoading: status === "loading",
+      }}
+    />
   );
 }

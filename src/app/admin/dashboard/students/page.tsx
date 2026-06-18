@@ -8,7 +8,7 @@ import {
   deleteStudent,
   setSelectedStudent,
 } from "../../../../features/student/studentSlice";
-import TableList from "../../../../components/TableList";
+import AdminListPage from "../../../../components/AdminListPage";
 
 const columns = [
   { label: "First Name", key: "firstName" },
@@ -73,51 +73,32 @@ export default function StudentListPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Student Management
-          </h1>
-          <p className="text-sm text-slate-500">
-            Create, edit, and remove students from the system.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => router.push("/admin/dashboard/students/new")}
-          className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
-        >
-          Add Student
-        </button>
-      </div>
-
-      {error ? (
-        <div className="rounded-3xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-700">
-          {error}
-        </div>
-      ) : null}
-
-      <TableList
-        columns={columns}
-        data={students}
-        currentPage={currentPage}
-        pageSize={pageSize}
-        totalItems={pagination.total}
-        searchText={searchQuery}
-        onSearchChange={handleSearch}
-        onPageChange={setCurrentPage}
-        onPageSizeChange={(size) => {
+    <AdminListPage
+      title="Student Management"
+      description="Create, edit, and remove students from the system."
+      actionLabel="Add Student"
+      actionHref="/admin/dashboard/students/new"
+      error={error}
+      tableProps={{
+        columns,
+        data: students,
+        currentPage,
+        pageSize,
+        totalItems: pagination.total,
+        searchText: searchQuery,
+        onSearchChange: handleSearch,
+        onPageChange: setCurrentPage,
+        onPageSizeChange: (size) => {
           setPageSize(size);
           setCurrentPage(1);
-        }}
-        onSortChange={handleSort}
-        sortKey={sortBy}
-        sortDirection={sortOrder}
-        onEdit={handleEdit}
-        onDelete={handleDelete}
-        isLoading={status === "loading"}
-      />
-    </div>
+        },
+        onSortChange: handleSort,
+        sortKey: sortBy,
+        sortDirection: sortOrder,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+        isLoading: status === "loading",
+      }}
+    />
   );
 }

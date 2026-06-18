@@ -2,6 +2,7 @@ import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch } from "../../hooks";
 import { logoutUser } from "../../features/auth/authSlice";
+import Button from "../Button";
 
 type DashboardLayoutProps = {
   sidebarItems: Array<{ label: string; href: string }>;
@@ -49,15 +50,12 @@ export default function DashboardLayout({
               {/* <p className="text-slate-500">Dashboard overview</p> */}
             </div>
             <div className="flex items-center gap-3">
-              <button className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm text-slate-700 transition hover:bg-slate-50">
+              <Button variant="secondary" size="md">
                 Settings
-              </button>
-              <button
-                onClick={handleLogout}
-                className="rounded-full bg-blue-600 px-4 py-2 text-sm text-white transition hover:bg-blue-700"
-              >
+              </Button>
+              <Button variant="primary" size="md" onClick={handleLogout}>
                 Logout
-              </button>
+              </Button>
             </div>
           </div>
           {children}

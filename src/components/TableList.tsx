@@ -1,11 +1,21 @@
 "use client";
 
-import { useEffect, useMemo, useState, useRef, useLayoutEffect } from "react";
+import {
+  ReactNode,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  useLayoutEffect,
+} from "react";
+import Button from "./Button";
 
-type TableListProps<T> = {
+export type TableListProps<T> = {
   columns: Array<{ label: string; key: string }>;
   data: T[];
   currentPage?: number;
+  headerContent?: ReactNode;
+  errorMessage?: string;
   pageSize?: number;
   totalItems?: number;
   searchText?: string;
@@ -18,6 +28,7 @@ type TableListProps<T> = {
   onPageSizeChange?: (size: number) => void;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  toolbarContent?: ReactNode;
   searchable?: boolean;
   sortable?: boolean;
   paginated?: boolean;
@@ -44,12 +55,15 @@ export default function TableList<T>({
   onPageSizeChange,
   onEdit,
   onDelete,
+  toolbarContent,
   searchable = true,
   sortable = true,
   paginated = true,
   serial = true,
   serialLabel = "SR",
   isLoading = false,
+  headerContent,
+  errorMessage,
 }: TableListProps<T>) {
   const [sortKey, setSortKey] = useState<string | null>(propSortKey);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
@@ -153,53 +167,44 @@ export default function TableList<T>({
   const endItem = Math.min(currentPage * pageSize, totalItems);
 
   return (
-    <div className="space-y-4">
-      <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        {searchable ? (
-          <div className="flex-1">
-            <label className="sr-only" htmlFor="table-search">
-              Search
-            </label>
-            <input
-              id="table-search"
-              ref={inputRef}
-              type="search"
-              value={localSearch}
-              onChange={(event) => handleSearchChange(event.target.value)}
-              onFocus={() => (wasFocusedRef.current = true)}
-              onBlur={() => (wasFocusedRef.current = false)}
-              placeholder="Search records"
-              className="w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
-        ) : null}
+    <div className="rounded-3xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex flex-col gap-6 px-6 py-6">
+        {headerContent}
 
-        {paginated ? (
-          <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-            <label className="text-sm text-slate-500">
-              Show
-              <select
-                value={pageSize}
-                onChange={(event) =>
-                  onPageSizeChange?.(Number(event.target.value))
-                }
-                className="ml-2 rounded-3xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                {PAGE_SIZES.map((size) => (
-                  <option key={size} value={size}>
-                    {size}
-                  </option>
-                ))}
-              </select>
-              entries
-            </label>
-          </div>
-        ) : null}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          {searchable ? (
+            <div className="w-full sm:max-w-xs">
+              <label className="sr-only" htmlFor="table-search">
+                Search
+              </label>
+              <input
+                id="table-search"
+                ref={inputRef}
+                type="search"
+                value={localSearch}
+                onChange={(event) => handleSearchChange(event.target.value)}
+                onFocus={() => (wasFocusedRef.current = true)}
+                onBlur={() => (wasFocusedRef.current = false)}
+                placeholder="Search records"
+                className="w-full rounded-3xl border border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+            </div>
+          ) : null}
+          {toolbarContent ? (
+            <div className="flex items-center justify-end w-full sm:w-auto">
+              {toolbarContent}
+            </div>
+          ) : null}
+        </div>
       </div>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-100 text-left text-sm uppercase tracking-[0.12em] text-slate-500">
+      <div className="overflow-hidden border-t border-slate-200 bg-white">
+        {errorMessage ? (
+          <div className="px-6 py-4 text-sm text-rose-700">{errorMessage}</div>
+        ) : null}
+
+        <table className="min-w-full divide-y divide-slate-200 border border-slate-200 text-sm text-slate-700">
+          <thead className="bg-slate-100 text-left uppercase tracking-[0.12em] text-slate-500">
             <tr>
               {serial && (
                 <th className="px-4 py-4 font-semibold">{serialLabel}</th>
@@ -207,7 +212,9 @@ export default function TableList<T>({
               {columns.map((column) => (
                 <th
                   key={String(column.key)}
-                  className={`px-4 py-4 font-semibold ${sortable ? "cursor-pointer" : ""}`}
+                  className={`px-4 py-4 font-semibold ${
+                    sortable ? "cursor-pointer" : ""
+                  }`}
                   onClick={() => handleSort(column.key)}
                 >
                   <div className="flex items-center gap-2">
@@ -223,9 +230,8 @@ export default function TableList<T>({
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200 text-sm text-slate-700">
+          <tbody className="divide-y divide-slate-200">
             {isLoading ? (
-              // Render skeleton rows matching the number of columns
               Array.from({
                 length: Math.max(3, Math.min(8, pageSize / 5 || 5)),
               }).map((_, rIdx) => (
@@ -285,22 +291,23 @@ export default function TableList<T>({
                   {(onEdit || onDelete) && (
                     <td className="px-4 py-4 align-top space-x-2">
                       {onEdit ? (
-                        <button
+                        <Button
                           type="button"
+                          size="sm"
                           onClick={() => onEdit(item)}
-                          className="rounded-xl bg-blue-600 px-3 py-2 text-sm text-white transition hover:bg-blue-700"
                         >
                           Edit
-                        </button>
+                        </Button>
                       ) : null}
                       {onDelete ? (
-                        <button
+                        <Button
+                          variant="danger"
                           type="button"
+                          size="sm"
                           onClick={() => onDelete(item)}
-                          className="rounded-xl bg-rose-600 px-3 py-2 text-sm text-white transition hover:bg-rose-700"
                         >
                           Delete
-                        </button>
+                        </Button>
                       ) : null}
                     </td>
                   )}
@@ -312,32 +319,54 @@ export default function TableList<T>({
       </div>
 
       {paginated ? (
-        <div className="flex flex-col gap-4 rounded-3xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-700 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            Showing {startItem} to {endItem} of {totalItems} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => onPageChange?.(Math.max(currentPage - 1, 1))}
-              disabled={currentPage === 1 || !onPageChange}
-              className="rounded-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <span className="text-sm text-slate-500">
-              Page {currentPage} of {totalPages}
-            </span>
-            <button
-              type="button"
-              onClick={() =>
-                onPageChange?.(Math.min(currentPage + 1, totalPages))
-              }
-              disabled={currentPage === totalPages || !onPageChange}
-              className="rounded-full border border-slate-300 bg-white px-3 py-2 text-sm text-slate-700 transition hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Next
-            </button>
+        <div className="flex flex-col gap-4 rounded-b-3xl border border-t-0 border-slate-200 bg-slate-50 px-4 py-4 text-sm text-slate-700 shadow-sm">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center justify-start">
+              <label className="text-sm text-slate-500">
+                Show
+                <select
+                  value={pageSize}
+                  onChange={(event) =>
+                    onPageSizeChange?.(Number(event.target.value))
+                  }
+                  className="ml-2 rounded-3xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                >
+                  {PAGE_SIZES.map((size) => (
+                    <option key={size} value={size}>
+                      {size}
+                    </option>
+                  ))}
+                </select>
+                entries
+              </label>
+            </div>
+            <div className="flex items-center gap-2 justify-end">
+              <Button
+                variant="secondary"
+                size="sm"
+                type="button"
+                onClick={() => onPageChange?.(Math.max(currentPage - 1, 1))}
+                disabled={currentPage === 1 || !onPageChange}
+                className="rounded-full"
+              >
+                Previous
+              </Button>
+              <span className="text-sm text-slate-500">
+                Page {currentPage} of {totalPages}
+              </span>
+              <Button
+                variant="secondary"
+                size="sm"
+                type="button"
+                onClick={() =>
+                  onPageChange?.(Math.min(currentPage + 1, totalPages))
+                }
+                disabled={currentPage === totalPages || !onPageChange}
+                className="rounded-full"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       ) : null}
