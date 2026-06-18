@@ -54,7 +54,7 @@ export default function StudentListPage() {
 
   const handleEdit = (student: any) => {
     dispatch(setSelectedStudent(student));
-    router.push(`/admin/dashboard/students/${student.id}`);
+    router.push(`/admin/dashboard/students/${student.id}/edit`);
   };
 
   const handleDelete = async (student: any) => {
