@@ -4,42 +4,43 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import {
-  fetchTeachers,
-  deleteTeacher,
-  setSelectedTeacher,
-} from "../../../features/teacher/teacherSlice";
+  fetchLiveClasses,
+  deleteLiveClass,
+  setSelectedLiveClass,
+} from "../../../features/liveClass/liveClassSlice";
 import TableList from "../../../components/TableList";
 
 const columns = [
-  { label: "Name", key: "firstName" },
-  { label: "Email", key: "email" },
-  { label: "Phone", key: "phone" },
-  { label: "Employee No", key: "employeeNo" },
-  { label: "Designation", key: "designation" },
+  { label: "Title", key: "title" },
+  { label: "Section", key: "sectionName" },
+  { label: "Class", key: "className" },
+  { label: "Subject", key: "subjectName" },
+  { label: "Teacher", key: "teacherName" },
+  { label: "Start Time", key: "startTime" },
   { label: "Status", key: "status" },
 ];
 
-export default function TeacherListPage() {
+export default function LiveClassListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { teachers, status, error } = useAppSelector((state) => state.teacher);
+  const { liveClasses, status, error } = useAppSelector((state) => state.liveClass);
 
   useEffect(() => {
-    dispatch(fetchTeachers());
+    dispatch(fetchLiveClasses());
   }, [dispatch]);
 
-  const handleEdit = (teacher: any) => {
-    dispatch(setSelectedTeacher(teacher));
-    router.push(`/admin/teachers/${teacher.id}`);
+  const handleEdit = (liveClass: any) => {
+    dispatch(setSelectedLiveClass(liveClass));
+    router.push(`/admin/live-classes/${liveClass.id}`);
   };
 
-  const handleDelete = async (teacher: any) => {
-    if (!window.confirm(`Delete ${teacher.firstName} ${teacher.lastName}?`)) {
+  const handleDelete = async (liveClass: any) => {
+    if (!window.confirm(`Delete live class "${liveClass.title}"?`)) {
       return;
     }
-    const result = await dispatch(deleteTeacher(teacher.id));
-    if (deleteTeacher.rejected.match(result)) {
-      alert(`Cannot delete teacher: ${result.payload}`);
+    const result = await dispatch(deleteLiveClass(liveClass.id));
+    if (deleteLiveClass.rejected.match(result)) {
+      alert(`Cannot delete live class: ${result.payload}`);
     }
   };
 
@@ -47,19 +48,17 @@ export default function TeacherListPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Teacher Management
-          </h1>
+          <h1 className="text-2xl font-semibold text-slate-900">Live Classes Management</h1>
           <p className="text-sm text-slate-500">
-            Create, edit, and remove teachers from the system.
+            Create, edit, and manage live class sessions for your school.
           </p>
         </div>
         <button
           type="button"
-          onClick={() => router.push("/admin/teachers/new")}
+          onClick={() => router.push("/admin/live-classes/new")}
           className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
         >
-          Add Teacher
+          Add Live Class
         </button>
       </div>
 
@@ -71,12 +70,12 @@ export default function TeacherListPage() {
 
       {status === "loading" ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading teachers...
+          Loading live classes...
         </div>
       ) : (
         <TableList
           columns={columns}
-          data={teachers}
+          data={liveClasses}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />

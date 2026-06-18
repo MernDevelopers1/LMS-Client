@@ -4,42 +4,42 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../hooks";
 import {
-  fetchTeachers,
-  deleteTeacher,
-  setSelectedTeacher,
-} from "../../../features/teacher/teacherSlice";
+  fetchStudents,
+  deleteStudent,
+  setSelectedStudent,
+} from "../../../features/student/studentSlice";
 import TableList from "../../../components/TableList";
 
 const columns = [
   { label: "Name", key: "firstName" },
   { label: "Email", key: "email" },
   { label: "Phone", key: "phone" },
-  { label: "Employee No", key: "employeeNo" },
-  { label: "Designation", key: "designation" },
+  { label: "Registration No", key: "registrationNo" },
+  { label: "Gender", key: "gender" },
   { label: "Status", key: "status" },
 ];
 
-export default function TeacherListPage() {
+export default function StudentListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { teachers, status, error } = useAppSelector((state) => state.teacher);
+  const { students, status, error } = useAppSelector((state) => state.student);
 
   useEffect(() => {
-    dispatch(fetchTeachers());
+    dispatch(fetchStudents());
   }, [dispatch]);
 
-  const handleEdit = (teacher: any) => {
-    dispatch(setSelectedTeacher(teacher));
-    router.push(`/admin/teachers/${teacher.id}`);
+  const handleEdit = (student: any) => {
+    dispatch(setSelectedStudent(student));
+    router.push(`/admin/students/${student.id}`);
   };
 
-  const handleDelete = async (teacher: any) => {
-    if (!window.confirm(`Delete ${teacher.firstName} ${teacher.lastName}?`)) {
+  const handleDelete = async (student: any) => {
+    if (!window.confirm(`Delete ${student.firstName} ${student.lastName}?`)) {
       return;
     }
-    const result = await dispatch(deleteTeacher(teacher.id));
-    if (deleteTeacher.rejected.match(result)) {
-      alert(`Cannot delete teacher: ${result.payload}`);
+    const result = await dispatch(deleteStudent(student.id));
+    if (deleteStudent.rejected.match(result)) {
+      alert(`Cannot delete student: ${result.payload}`);
     }
   };
 
@@ -48,18 +48,18 @@ export default function TeacherListPage() {
       <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-slate-900">
-            Teacher Management
+            Student Management
           </h1>
           <p className="text-sm text-slate-500">
-            Create, edit, and remove teachers from the system.
+            Create, edit, and remove students from the system.
           </p>
         </div>
         <button
           type="button"
-          onClick={() => router.push("/admin/teachers/new")}
+          onClick={() => router.push("/admin/students/new")}
           className="rounded-full bg-blue-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-blue-700"
         >
-          Add Teacher
+          Add Student
         </button>
       </div>
 
@@ -71,12 +71,12 @@ export default function TeacherListPage() {
 
       {status === "loading" ? (
         <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading teachers...
+          Loading students...
         </div>
       ) : (
         <TableList
           columns={columns}
-          data={teachers}
+          data={students}
           onEdit={handleEdit}
           onDelete={handleDelete}
         />
