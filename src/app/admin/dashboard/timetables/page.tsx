@@ -63,7 +63,7 @@ export default function TimetableListPage() {
 
   const handleEdit = (timetable: any) => {
     dispatch(setSelectedTimetable(timetable));
-    router.push(`/admin/dashboard/timetables/${timetable.id}`);
+    router.push(`/admin/dashboard/timetables/${timetable.id}/edit`);
   };
 
   const handleDelete = async (timetable: any) => {
@@ -116,6 +116,10 @@ export default function TimetableListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedTimetable(item));
+          router.push(`/admin/dashboard/timetables/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

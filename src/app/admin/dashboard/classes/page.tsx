@@ -50,7 +50,7 @@ export default function ClassListPage() {
 
   const handleEdit = (classItem: any) => {
     dispatch(setSelectedClass(classItem));
-    router.push(`/admin/dashboard/classes/${classItem.id}`);
+    router.push(`/admin/dashboard/classes/${classItem.id}/edit`);
   };
 
   const handleDelete = async (classItem: any) => {
@@ -92,6 +92,10 @@ export default function ClassListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedClass(item));
+          router.push(`/admin/dashboard/classes/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

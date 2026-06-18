@@ -53,7 +53,7 @@ export default function LiveClassListPage() {
 
   const handleEdit = (liveClass: any) => {
     dispatch(setSelectedLiveClass(liveClass));
-    router.push(`/admin/dashboard/live-classes/${liveClass.id}`);
+    router.push(`/admin/dashboard/live-classes/${liveClass.id}/edit`);
   };
 
   const handleDelete = async (liveClass: any) => {
@@ -95,6 +95,10 @@ export default function LiveClassListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedLiveClass(item));
+          router.push(`/admin/dashboard/live-classes/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

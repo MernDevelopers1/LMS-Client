@@ -51,7 +51,7 @@ export default function RoomListPage() {
 
   const handleEdit = (room: any) => {
     dispatch(setSelectedRoom(room));
-    router.push(`/admin/dashboard/rooms/${room.id}`);
+    router.push(`/admin/dashboard/rooms/${room.id}/edit`);
   };
 
   const handleDelete = async (room: any) => {
@@ -93,6 +93,10 @@ export default function RoomListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedRoom(item));
+          router.push(`/admin/dashboard/rooms/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

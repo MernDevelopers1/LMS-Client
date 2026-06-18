@@ -28,6 +28,7 @@ export type TableListProps<T> = {
   onPageSizeChange?: (size: number) => void;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
+  onRowClick?: (item: T) => void;
   toolbarContent?: ReactNode;
   searchable?: boolean;
   sortable?: boolean;
@@ -55,6 +56,7 @@ export default function TableList<T>({
   onPageSizeChange,
   onEdit,
   onDelete,
+  onRowClick,
   toolbarContent,
   searchable = true,
   sortable = true,
@@ -274,7 +276,13 @@ export default function TableList<T>({
               </tr>
             ) : (
               sortedData.map((item, index) => (
-                <tr key={index} className="odd:bg-white even:bg-slate-50">
+                <tr
+                  key={index}
+                  className={`odd:bg-white even:bg-slate-50 ${
+                    onRowClick ? "cursor-pointer hover:bg-slate-50" : ""
+                  }`}
+                  onClick={() => onRowClick?.(item)}
+                >
                   {serial && (
                     <td className="px-4 py-4 align-top text-slate-500">
                       {startItem + index}
@@ -294,7 +302,10 @@ export default function TableList<T>({
                         <Button
                           type="button"
                           size="sm"
-                          onClick={() => onEdit(item)}
+                          onClick={(e: any) => {
+                            e.stopPropagation();
+                            onEdit(item);
+                          }}
                         >
                           Edit
                         </Button>
@@ -304,7 +315,10 @@ export default function TableList<T>({
                           variant="danger"
                           type="button"
                           size="sm"
-                          onClick={() => onDelete(item)}
+                          onClick={(e: any) => {
+                            e.stopPropagation();
+                            onDelete(item);
+                          }}
                         >
                           Delete
                         </Button>

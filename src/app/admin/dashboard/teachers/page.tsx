@@ -54,7 +54,7 @@ export default function TeacherListPage() {
 
   const handleEdit = (teacher: any) => {
     dispatch(setSelectedTeacher(teacher));
-    router.push(`/admin/dashboard/teachers/${teacher.id}`);
+    router.push(`/admin/dashboard/teachers/${teacher.id}/edit`);
   };
 
   const handleDelete = async (teacher: any) => {
@@ -96,6 +96,10 @@ export default function TeacherListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedTeacher(item));
+          router.push(`/admin/dashboard/teachers/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

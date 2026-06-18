@@ -51,7 +51,7 @@ export default function SubjectListPage() {
 
   const handleEdit = (subject: any) => {
     dispatch(setSelectedSubject(subject));
-    router.push(`/admin/dashboard/subjects/${subject.id}`);
+    router.push(`/admin/dashboard/subjects/${subject.id}/edit`);
   };
 
   const handleDelete = async (subject: any) => {
@@ -95,6 +95,10 @@ export default function SubjectListPage() {
         sortKey: sortBy,
         sortDirection: sortOrder,
         onEdit: handleEdit,
+        onRowClick: (item: any) => {
+          dispatch(setSelectedSubject(item));
+          router.push(`/admin/dashboard/subjects/${item.id}/detail`);
+        },
         onDelete: handleDelete,
         isLoading: status === "loading",
       }}

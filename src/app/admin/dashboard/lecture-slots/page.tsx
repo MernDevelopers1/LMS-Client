@@ -110,7 +110,9 @@ const LectureSlotListPage = () => {
           sortKey: sortBy,
           sortDirection: sortOrder,
           onEdit: (item: any) =>
-            router.push(`/admin/dashboard/lecture-slots/${item.id}`),
+            router.push(`/admin/dashboard/lecture-slots/${item.id}/edit`),
+          onRowClick: (item: any) =>
+            router.push(`/admin/dashboard/lecture-slots/${item.id}/detail`),
           onDelete: (item: any) => setShowDeleteConfirm(item.id),
           isLoading: status === "loading",
         }}
