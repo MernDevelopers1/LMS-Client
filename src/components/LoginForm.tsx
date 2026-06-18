@@ -59,7 +59,9 @@ export default function LoginForm({
       onSuccess?.();
     } catch (submitError: unknown) {
       const message =
-        submitError instanceof Error ? submitError.message : "Unable to log in.";
+        submitError instanceof Error
+          ? submitError.message
+          : "Unable to log in.";
       setLocalError(message);
     }
   };
@@ -67,21 +69,21 @@ export default function LoginForm({
   return (
     <main className="min-h-screen bg-[#eef6fc] text-slate-950">
       <div className="grid min-h-screen grid-cols-1 lg:grid-cols-[1fr_1fr]">
-        <section className="flex min-h-[42vh] flex-col items-center justify-center px-6 py-10 text-center lg:min-h-screen lg:px-12">
-          <div className="flex w-full max-w-[620px] flex-col items-center">
+        <section className="flex min-h-[36vh] flex-col items-center justify-center px-6 py-8 text-center lg:min-h-[80vh] lg:px-10">
+          <div className="flex w-full max-w-[520px] flex-col items-center">
             <Image
               src="/vertex-logo.svg"
               alt="Vertex Human Capital Management"
               width={354}
               height={86}
               priority
-              className="h-auto w-[250px] sm:w-[310px] lg:w-[354px]"
+              className="h-auto w-[220px] sm:w-[260px] lg:w-[300px]"
             />
 
-            <h1 className="mt-8 text-[26px] font-medium leading-tight text-black sm:text-[32px]">
+            <h1 className="mt-6 text-[24px] font-medium leading-tight text-black sm:text-[28px]">
               {title}
             </h1>
-            <p className="mt-2 max-w-[620px] text-base font-normal leading-7 text-black sm:text-[18px]">
+            <p className="mt-2 max-w-[520px] text-sm font-normal leading-7 text-black sm:text-[16px]">
               {subtitle}
             </p>
 
@@ -91,7 +93,7 @@ export default function LoginForm({
               width={430}
               height={430}
               priority
-              className="mt-4 h-auto w-[260px] sm:w-[340px] lg:w-[430px]"
+              className="mt-4 h-auto w-[220px] sm:w-[290px] lg:w-[340px]"
             />
 
             <footer className="mt-8 hidden items-center gap-6 text-sm text-[#4a66c7] sm:flex">
@@ -108,10 +110,10 @@ export default function LoginForm({
           </div>
         </section>
 
-        <section className="flex min-h-[58vh] items-center justify-center bg-white px-5 py-10 lg:min-h-screen lg:bg-transparent">
+        <section className="flex min-h-[50vh] items-center justify-center bg-white px-5 py-8 lg:min-h-[80vh] lg:bg-transparent">
           <form
             onSubmit={handleSubmit}
-            className="w-full max-w-[650px] rounded-[28px] bg-white px-6 py-10 shadow-[0_4px_28px_rgba(15,23,42,0.22)] sm:px-10 md:px-14 lg:px-10 xl:px-[38px]"
+            className="w-full max-w-[520px] rounded-[24px] bg-white px-6 py-8 shadow-[0_4px_24px_rgba(15,23,42,0.18)] sm:px-8 md:px-10 lg:px-8 xl:px-[28px]"
           >
             <div className="flex flex-col items-center">
               <Image
@@ -121,12 +123,12 @@ export default function LoginForm({
                 height={42}
                 className="h-auto w-[112px] object-contain"
               />
-              <h2 className="mt-11 text-center text-[30px] font-semibold leading-none text-[#171717]">
+              <h2 className="mt-10 text-center text-[26px] font-semibold leading-none text-[#171717]">
                 Login
               </h2>
             </div>
 
-            <div className="mt-16 flex flex-col gap-6">
+            <div className="mt-12 flex flex-col gap-5">
               <div>
                 <label
                   htmlFor="email"
@@ -143,7 +145,7 @@ export default function LoginForm({
                   placeholder="faisal@viiontech.com"
                   autoComplete="username"
                   disabled={isLoading}
-                  className="mt-3 h-[70px] w-full rounded-[6px] border border-[#e6eaf0] bg-white px-5 text-[20px] text-slate-900 outline-none transition placeholder:text-[#8c8f98] focus:border-[#214d88] focus:ring-4 focus:ring-[#214d88]/10 disabled:bg-slate-50"
+                  className="mt-3 h-[58px] w-full rounded-[6px] border border-[#e6eaf0] bg-white px-4 text-[18px] text-slate-900 outline-none transition placeholder:text-[#8c8f98] focus:border-[#214d88] focus:ring-4 focus:ring-[#214d88]/10 disabled:bg-slate-50"
                 />
               </div>
 
@@ -164,13 +166,15 @@ export default function LoginForm({
                     placeholder="********"
                     autoComplete="current-password"
                     disabled={isLoading}
-                    className="h-[70px] w-full rounded-[6px] border border-[#e6eaf0] bg-white px-5 pr-16 text-[20px] text-slate-900 outline-none transition placeholder:text-[#8c8f98] focus:border-[#214d88] focus:ring-4 focus:ring-[#214d88]/10 disabled:bg-slate-50"
+                    className="h-[58px] w-full rounded-[6px] border border-[#e6eaf0] bg-white px-4 pr-14 text-[18px] text-slate-900 outline-none transition placeholder:text-[#8c8f98] focus:border-[#214d88] focus:ring-4 focus:ring-[#214d88]/10 disabled:bg-slate-50"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((value) => !value)}
                     className="absolute right-5 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center text-slate-300 transition hover:text-[#214d88] focus:outline-none focus:ring-2 focus:ring-[#214d88]/20"
-                    aria-label={showPassword ? "Hide password" : "Show password"}
+                    aria-label={
+                      showPassword ? "Hide password" : "Show password"
+                    }
                   >
                     <svg
                       viewBox="0 0 24 24"
@@ -225,11 +229,11 @@ export default function LoginForm({
               </div>
             ) : null}
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-6 flex justify-center">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="flex h-16 w-full max-w-[220px] items-center justify-center rounded-[5px] bg-[#224f91] text-[21px] font-semibold text-white shadow-[0_14px_28px_rgba(34,79,145,0.28)] transition hover:bg-[#183f78] focus:outline-none focus:ring-4 focus:ring-[#224f91]/25 disabled:cursor-not-allowed disabled:opacity-70"
+                className="flex h-14 w-full max-w-[200px] items-center justify-center rounded-[5px] bg-[#224f91] text-[18px] font-semibold text-white shadow-[0_12px_22px_rgba(34,79,145,0.24)] transition hover:bg-[#183f78] focus:outline-none focus:ring-4 focus:ring-[#224f91]/25 disabled:cursor-not-allowed disabled:opacity-70"
               >
                 {isLoading ? "Logging in..." : buttonLabel}
               </button>
