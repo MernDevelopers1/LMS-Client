@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
@@ -12,7 +12,7 @@ import TableList from "../../../../components/TableList";
 
 const columns = [
   { label: "Code", key: "code" },
-  { label: "Name", key: "name" },
+  { label: "Subject", key: "name" },
   { label: "Total Marks", key: "totalMarks" },
   { label: "Passing Marks", key: "passingMarks" },
 ];
@@ -20,11 +20,34 @@ const columns = [
 export default function SubjectListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { subjects, status, error } = useAppSelector((state) => state.subject);
+  const { subjects, status, error, pagination } = useAppSelector(
+    (state) => state.subject,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("code");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    dispatch(fetchSubjects());
-  }, [dispatch]);
+    dispatch(
+      fetchSubjects({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+        sortBy: sortBy ?? undefined,
+        sortOrder,
+      }),
+    );
+  }, [dispatch, currentPage, pageSize, searchQuery, sortBy, sortOrder]);
+
+  const handleSort = (key: string) => {
+    const nextSortOrder =
+      sortBy === key && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(key);
+    setSortOrder(nextSortOrder);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (subject: any) => {
     dispatch(setSelectedSubject(subject));
@@ -41,6 +64,11 @@ export default function SubjectListPage() {
     if (deleteSubject.rejected.match(result)) {
       alert(`Cannot delete subject: ${result.payload}`);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -69,18 +97,26 @@ export default function SubjectListPage() {
         </div>
       ) : null}
 
-      {status === "loading" ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading subjects...
-        </div>
-      ) : (
-        <TableList
-          columns={columns}
-          data={subjects}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <TableList
+        columns={columns}
+        data={subjects}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalItems={pagination.total}
+        searchText={searchQuery}
+        onSearchChange={handleSearch}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        onSortChange={handleSort}
+        sortKey={sortBy}
+        sortDirection={sortOrder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        isLoading={status === "loading"}
+      />
     </div>
   );
 }

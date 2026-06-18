@@ -38,7 +38,13 @@ const initialState: RoomState = {
 export const fetchRooms = createAsyncThunk(
   "room/fetchRooms",
   async (
-    params: { page?: number; limit?: number; search?: string } = {},
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {},
     thunkAPI,
   ) => {
     try {
@@ -46,6 +52,8 @@ export const fetchRooms = createAsyncThunk(
       if (params.page) query.append("page", String(params.page));
       if (params.limit) query.append("limit", String(params.limit));
       if (params.search) query.append("search", params.search);
+      if (params.sortBy) query.append("sortBy", params.sortBy);
+      if (params.sortOrder) query.append("sortOrder", params.sortOrder);
 
       const response = await apiClient.request(`/rooms?${query.toString()}`, {
         method: "GET",

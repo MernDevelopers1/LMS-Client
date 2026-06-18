@@ -41,7 +41,13 @@ const initialState: SubjectState = {
 export const fetchSubjects = createAsyncThunk(
   "subject/fetchSubjects",
   async (
-    params: { page?: number; limit?: number; search?: string } = {},
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {},
     thunkAPI,
   ) => {
     try {
@@ -49,6 +55,8 @@ export const fetchSubjects = createAsyncThunk(
       if (params.page) query.append("page", String(params.page));
       if (params.limit) query.append("limit", String(params.limit));
       if (params.search) query.append("search", params.search);
+      if (params.sortBy) query.append("sortBy", params.sortBy);
+      if (params.sortOrder) query.append("sortOrder", params.sortOrder);
 
       const response = await apiClient.request(
         `/subjects?${query.toString()}`,
@@ -213,5 +221,6 @@ const subjectSlice = createSlice({
   },
 });
 
-export const { setSelectedSubject, clearSelectedSubject } = subjectSlice.actions;
+export const { setSelectedSubject, clearSelectedSubject } =
+  subjectSlice.actions;
 export default subjectSlice.reducer;

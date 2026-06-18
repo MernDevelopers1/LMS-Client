@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../../hooks";
-import { fetchRooms, deleteRoom, setSelectedRoom } from "../../../../features/room/roomSlice";
+import {
+  fetchRooms,
+  deleteRoom,
+  setSelectedRoom,
+} from "../../../../features/room/roomSlice";
 import TableList from "../../../../components/TableList";
 
 const columns = [
   { label: "Room No", key: "roomNo" },
-  { label: "Name", key: "roomName" },
+  { label: "Room Name", key: "roomName" },
   { label: "Building", key: "building" },
   { label: "Capacity", key: "capacity" },
 ];
@@ -16,11 +20,34 @@ const columns = [
 export default function RoomListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { rooms, status, error } = useAppSelector((state) => state.room);
+  const { rooms, status, error, pagination } = useAppSelector(
+    (state) => state.room,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("roomNo");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    dispatch(fetchRooms());
-  }, [dispatch]);
+    dispatch(
+      fetchRooms({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+        sortBy: sortBy ?? undefined,
+        sortOrder,
+      }),
+    );
+  }, [dispatch, currentPage, pageSize, searchQuery, sortBy, sortOrder]);
+
+  const handleSort = (key: string) => {
+    const nextSortOrder =
+      sortBy === key && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(key);
+    setSortOrder(nextSortOrder);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (room: any) => {
     dispatch(setSelectedRoom(room));
@@ -37,11 +64,18 @@ export default function RoomListPage() {
     }
   };
 
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-3 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-slate-900">Room Management</h1>
+          <h1 className="text-2xl font-semibold text-slate-900">
+            Room Management
+          </h1>
           <p className="text-sm text-slate-500">
             Create, edit, and manage rooms used for timetable scheduling.
           </p>
@@ -61,13 +95,26 @@ export default function RoomListPage() {
         </div>
       ) : null}
 
-      {status === "loading" ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading rooms...
-        </div>
-      ) : (
-        <TableList columns={columns} data={rooms} onEdit={handleEdit} onDelete={handleDelete} />
-      )}
+      <TableList
+        columns={columns}
+        data={rooms}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalItems={pagination.total}
+        searchText={searchQuery}
+        onSearchChange={handleSearch}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        onSortChange={handleSort}
+        sortKey={sortBy}
+        sortDirection={sortOrder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        isLoading={status === "loading"}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
@@ -11,7 +11,8 @@ import {
 import TableList from "../../../../components/TableList";
 
 const columns = [
-  { label: "Name", key: "firstName" },
+  { label: "First Name", key: "firstName" },
+  { label: "Last Name", key: "lastName" },
   { label: "Email", key: "email" },
   { label: "Phone", key: "phone" },
   { label: "Registration No", key: "registrationNo" },
@@ -22,11 +23,34 @@ const columns = [
 export default function StudentListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { students, status, error } = useAppSelector((state) => state.student);
+  const { students, status, error, pagination } = useAppSelector(
+    (state) => state.student,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("firstName");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    dispatch(fetchStudents());
-  }, [dispatch]);
+    dispatch(
+      fetchStudents({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+        sortBy: sortBy ?? undefined,
+        sortOrder,
+      }),
+    );
+  }, [dispatch, currentPage, pageSize, searchQuery, sortBy, sortOrder]);
+
+  const handleSort = (key: string) => {
+    const nextSortOrder =
+      sortBy === key && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(key);
+    setSortOrder(nextSortOrder);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (student: any) => {
     dispatch(setSelectedStudent(student));
@@ -41,6 +65,11 @@ export default function StudentListPage() {
     if (deleteStudent.rejected.match(result)) {
       alert(`Cannot delete student: ${result.payload}`);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -69,18 +98,26 @@ export default function StudentListPage() {
         </div>
       ) : null}
 
-      {status === "loading" ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading students...
-        </div>
-      ) : (
-        <TableList
-          columns={columns}
-          data={students}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <TableList
+        columns={columns}
+        data={students}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalItems={pagination.total}
+        searchText={searchQuery}
+        onSearchChange={handleSearch}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        onSortChange={handleSort}
+        sortKey={sortBy}
+        sortDirection={sortOrder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        isLoading={status === "loading"}
+      />
     </div>
   );
 }

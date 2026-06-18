@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
@@ -11,7 +11,7 @@ import {
 import TableList from "../../../../components/TableList";
 
 const columns = [
-  { label: "Name", key: "name" },
+  { label: "Class", key: "name" },
   { label: "Academic Year", key: "academicYearTitle" },
   { label: "Description", key: "description" },
 ];
@@ -19,11 +19,34 @@ const columns = [
 export default function ClassListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { classes, status, error } = useAppSelector((state) => state.class);
+  const { classes, status, error, pagination } = useAppSelector(
+    (state) => state.class,
+  );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("name");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    dispatch(fetchClasses());
-  }, [dispatch]);
+    dispatch(
+      fetchClasses({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+        sortBy: sortBy ?? undefined,
+        sortOrder,
+      }),
+    );
+  }, [dispatch, currentPage, pageSize, searchQuery, sortBy, sortOrder]);
+
+  const handleSort = (key: string) => {
+    const nextSortOrder =
+      sortBy === key && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(key);
+    setSortOrder(nextSortOrder);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (classItem: any) => {
     dispatch(setSelectedClass(classItem));
@@ -38,6 +61,11 @@ export default function ClassListPage() {
     if (deleteClass.rejected.match(result)) {
       alert(`Cannot delete class: ${result.payload}`);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   return (
@@ -66,18 +94,26 @@ export default function ClassListPage() {
         </div>
       ) : null}
 
-      {status === "loading" ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading classes...
-        </div>
-      ) : (
-        <TableList
-          columns={columns}
-          data={classes}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <TableList
+        columns={columns}
+        data={classes}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalItems={pagination.total}
+        searchText={searchQuery}
+        onSearchChange={handleSearch}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        onSortChange={handleSort}
+        sortKey={sortBy}
+        sortDirection={sortOrder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        isLoading={status === "loading"}
+      />
     </div>
   );
 }

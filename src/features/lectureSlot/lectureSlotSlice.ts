@@ -38,7 +38,13 @@ const initialState: LectureSlotState = {
 export const fetchLectureSlots = createAsyncThunk(
   "lectureSlot/fetchLectureSlots",
   async (
-    params: { page?: number; limit?: number; search?: string } = {},
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {},
     thunkAPI,
   ) => {
     try {
@@ -46,6 +52,8 @@ export const fetchLectureSlots = createAsyncThunk(
       if (params.page) queryParams.append("page", String(params.page));
       if (params.limit) queryParams.append("limit", String(params.limit));
       if (params.search) queryParams.append("search", params.search);
+      if (params.sortBy) queryParams.append("sortBy", params.sortBy);
+      if (params.sortOrder) queryParams.append("sortOrder", params.sortOrder);
 
       const response = await apiClient.request(
         `/lecture-slots?${queryParams.toString()}`,

@@ -40,7 +40,14 @@ const initialState: SectionState = {
 export const fetchSections = createAsyncThunk(
   "section/fetchSections",
   async (
-    params: { page?: number; limit?: number; search?: string; classId?: number } = {},
+    params: {
+      page?: number;
+      limit?: number;
+      search?: string;
+      classId?: number;
+      sortBy?: string;
+      sortOrder?: string;
+    } = {},
     thunkAPI,
   ) => {
     try {
@@ -49,6 +56,8 @@ export const fetchSections = createAsyncThunk(
       if (params.limit) query.append("limit", String(params.limit));
       if (params.search) query.append("search", params.search);
       if (params.classId) query.append("classId", String(params.classId));
+      if (params.sortBy) query.append("sortBy", params.sortBy);
+      if (params.sortOrder) query.append("sortOrder", params.sortOrder);
 
       const response = await apiClient.request(
         `/sections?${query.toString()}`,
@@ -213,5 +222,6 @@ const sectionSlice = createSlice({
   },
 });
 
-export const { setSelectedSection, clearSelectedSection } = sectionSlice.actions;
+export const { setSelectedSection, clearSelectedSection } =
+  sectionSlice.actions;
 export default sectionSlice.reducer;

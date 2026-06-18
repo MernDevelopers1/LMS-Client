@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppDispatch, useAppSelector } from "../../../../hooks";
 import {
@@ -32,13 +32,34 @@ const columns = [
 export default function TimetableListPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const { timetables, status, error } = useAppSelector(
+  const { timetables, status, error, pagination } = useAppSelector(
     (state) => state.timetable,
   );
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(20);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<string | null>("className");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
-    dispatch(fetchTimetables());
-  }, [dispatch]);
+    dispatch(
+      fetchTimetables({
+        page: currentPage,
+        limit: pageSize,
+        search: searchQuery,
+        sortBy: sortBy ?? undefined,
+        sortOrder,
+      }),
+    );
+  }, [dispatch, currentPage, pageSize, searchQuery, sortBy, sortOrder]);
+
+  const handleSort = (key: string) => {
+    const nextSortOrder =
+      sortBy === key && sortOrder === "asc" ? "desc" : "asc";
+    setSortBy(key);
+    setSortOrder(nextSortOrder);
+    setCurrentPage(1);
+  };
 
   const handleEdit = (timetable: any) => {
     dispatch(setSelectedTimetable(timetable));
@@ -59,6 +80,11 @@ export default function TimetableListPage() {
     if (deleteTimetable.rejected.match(result)) {
       alert(`Cannot delete timetable: ${result.payload}`);
     }
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    setCurrentPage(1);
   };
 
   const displayTimetables = timetables.map((t) => ({
@@ -92,18 +118,26 @@ export default function TimetableListPage() {
         </div>
       ) : null}
 
-      {status === "loading" ? (
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 text-center text-slate-600 shadow-sm">
-          Loading timetables...
-        </div>
-      ) : (
-        <TableList
-          columns={columns}
-          data={displayTimetables}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
-      )}
+      <TableList
+        columns={columns}
+        data={displayTimetables}
+        currentPage={currentPage}
+        pageSize={pageSize}
+        totalItems={pagination.total}
+        searchText={searchQuery}
+        onSearchChange={handleSearch}
+        onPageChange={setCurrentPage}
+        onPageSizeChange={(size) => {
+          setPageSize(size);
+          setCurrentPage(1);
+        }}
+        onSortChange={handleSort}
+        sortKey={sortBy}
+        sortDirection={sortOrder}
+        onEdit={handleEdit}
+        onDelete={handleDelete}
+        isLoading={status === "loading"}
+      />
     </div>
   );
 }
