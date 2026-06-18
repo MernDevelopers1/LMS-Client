@@ -9,7 +9,9 @@ import LoginForm from "../../components/LoginForm";
 export default function AdminLoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { status, error, user, initialized } = useAppSelector((state) => state.auth);
+  const { status, error, user, initialized } = useAppSelector(
+    (state) => state.auth,
+  );
 
   useEffect(() => {
     if (!initialized) {
@@ -23,8 +25,15 @@ export default function AdminLoginPage() {
     }
   }, [initialized, router, user]);
 
-  const handleSubmit = async ({ email, password }: { email: string; password: string }) => {
+  const handleSubmit = async ({
+    email,
+    password,
+  }: {
+    email: string;
+    password: string;
+  }) => {
     const result = await dispatch(loginAdmin({ email, password }));
+
     if (loginAdmin.fulfilled.match(result)) {
       return;
     }

@@ -9,7 +9,9 @@ import LoginForm from "../../components/LoginForm";
 export default function StudentLoginPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { status, error, user, initialized } = useAppSelector((state) => state.auth);
+  const { status, error, user, initialized } = useAppSelector(
+    (state) => state.auth,
+  );
 
   useEffect(() => {
     if (!initialized) {

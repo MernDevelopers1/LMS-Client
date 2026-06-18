@@ -1,16 +1,47 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import apiClient from "../../utils/apiClient";
 
-export type AuthState = {
-  user: null | {
-    id: number;
-    email: string;
-    firstName: string;
-    lastName: string;
-    role: string;
-    phone?: string;
-    profileImage?: string;
+type AuthUser = {
+  id: number;
+  email: string;
+  firstName: string;
+  lastName: string;
+  role: string;
+  phone?: string;
+  profileImage?: string;
+};
+
+type ApiUser = {
+  id: number;
+  email: string;
+  firstName?: string;
+  lastName?: string;
+  first_name?: string;
+  last_name?: string;
+  role: string;
+  phone?: string;
+  profileImage?: string;
+  profile_image?: string;
+};
+
+function normalizeUser(user: ApiUser): AuthUser {
+  return {
+    id: user.id,
+    email: user.email,
+    firstName: user.firstName || user.first_name || "",
+    lastName: user.lastName || user.last_name || "",
+    role: user.role,
+    phone: user.phone,
+    profileImage: user.profileImage || user.profile_image,
   };
+}
+
+function getErrorMessage(error: unknown, fallback: string) {
+  return error instanceof Error ? error.message : fallback;
+}
+
+export type AuthState = {
+  user: null | AuthUser;
   status: "idle" | "loading" | "succeeded" | "failed";
   initialized: boolean;
   error: string | null;
@@ -30,11 +61,14 @@ export const fetchCurrentUser = createAsyncThunk(
       const response = await apiClient.request("/auth/me", {
         method: "GET",
       });
-      return response.data;
-    } catch (error: any) {
+      return normalizeUser(response.data);
+    } catch (error: unknown) {
       return thunkAPI.rejectWithValue({
-        message: error.message || "Unable to fetch current user",
-        status: error.status || 0,
+        message: getErrorMessage(error, "Unable to fetch current user"),
+        status:
+          error && typeof error === "object" && "status" in error
+            ? Number(error.status)
+            : 0,
       });
     }
   },
@@ -51,9 +85,9 @@ export const loginStudent = createAsyncThunk(
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message || "Login failed");
+      return normalizeUser(response.data.user);
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(getErrorMessage(error, "Login failed"));
     }
   },
 );
@@ -69,9 +103,9 @@ export const loginTeacher = createAsyncThunk(
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message || "Login failed");
+      return normalizeUser(response.data.user);
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(getErrorMessage(error, "Login failed"));
     }
   },
 );
@@ -87,9 +121,9 @@ export const loginAdmin = createAsyncThunk(
         method: "POST",
         body: JSON.stringify({ email, password }),
       });
-      return response.data;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message || "Login failed");
+      return normalizeUser(response.data.user);
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(getErrorMessage(error, "Login failed"));
     }
   },
 );
@@ -102,8 +136,8 @@ export const logoutUser = createAsyncThunk(
         method: "POST",
       });
       return;
-    } catch (error: any) {
-      return thunkAPI.rejectWithValue(error.message || "Logout failed");
+    } catch (error: unknown) {
+      return thunkAPI.rejectWithValue(getErrorMessage(error, "Logout failed"));
     }
   },
 );
@@ -134,7 +168,9 @@ const authSlice = createSlice({
         state.status = "failed";
         state.user = null;
         state.initialized = true;
-        const payload = action.payload as { message: string; status?: number } | string;
+        const payload = action.payload as
+          | { message: string; status?: number }
+          | string;
         if (typeof payload === "object" && payload.status === 401) {
           state.error = null;
         } else {
@@ -147,7 +183,7 @@ const authSlice = createSlice({
       })
       .addCase(loginStudent.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        state.user = action.payload;
         state.initialized = true;
       })
       .addCase(loginStudent.rejected, (state, action) => {
@@ -160,7 +196,7 @@ const authSlice = createSlice({
       })
       .addCase(loginTeacher.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        state.user = action.payload;
         state.initialized = true;
       })
       .addCase(loginTeacher.rejected, (state, action) => {
@@ -173,7 +209,7 @@ const authSlice = createSlice({
       })
       .addCase(loginAdmin.fulfilled, (state, action) => {
         state.status = "succeeded";
-        state.user = action.payload.user;
+        state.user = action.payload;
         state.initialized = true;
       })
       .addCase(loginAdmin.rejected, (state, action) => {
